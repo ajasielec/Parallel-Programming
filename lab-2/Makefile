@@ -40,13 +40,13 @@ multi_thread_clone.o: multi_thread_clone.c
 	$(CCOMP) -c $(OPT) multi_thread_clone.c $(INC)
 
 # na 4.0:
-program: program.o
-	$(LOADER) $(OPT) program.o -o program $(LIB)
+zajecia2: zajecia2.o
+	$(LOADER) $(OPT) zajecia2.o -o zajecia2 $(LIB)
 
-program.o: program.c
-	$(CCOMP) -c $(OPT) program.c $(INC)
+zajecia2.o: zajecia2.c
+	$(CCOMP) -c $(OPT) zajecia2.c $(INC)
 
-all: fork clone multi_thread_clone program
+all: fork clone multi_thread_clone zajecia2
 
 clean:
-	rm -f *.o fork clone multi_thread_clone program
+	rm -f *.o fork clone multi_thread_clone zajecia2

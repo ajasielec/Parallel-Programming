@@ -23,15 +23,15 @@ int main(){
       zmienna_globalna++;
 
       // Tablica argumentów do execv
-      char* args[] = {"/bin/ls", ".", NULL}; // // uruchomienie komedy ls
-      // char* args[] = {"./program", NULL}; // uruchomienie programu
+      // char* args[] = {"/bin/ls", ".", NULL}; // // uruchomienie komedy ls
+      // // char* args[] = {"./program", NULL}; // uruchomienie programu
 
-      wynik=execv(args[0], args); 
+      // wynik=execv(args[0], args); 
    
 
       
-       if(wynik==-1) 
-           printf("Proces potomny nie wykonal programu\n"); 
+      //  if(wynik==-1) 
+      //      printf("Proces potomny nie wykonal programu\n"); 
 
       exit(0);
       

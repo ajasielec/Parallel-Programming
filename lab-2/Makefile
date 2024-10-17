@@ -46,6 +46,7 @@ program: program.o
 program.o: program.c
 	$(CCOMP) -c $(OPT) program.c $(INC)
 
+all: fork clone multi_thread_clone program
 
 clean:
 	rm -f *.o fork clone multi_thread_clone program

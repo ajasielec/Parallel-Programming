@@ -28,4 +28,4 @@ pomiar_czasu.o: pomiar_czasu.c pomiar_czasu.h
 	$(CCOMP) -c $(OPT) pomiar_czasu.c
 
 clean:
-	rm -f *.o
+	rm -f *.o moj_program

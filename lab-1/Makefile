@@ -25,4 +25,4 @@ moj_program.o: moj_program.c
 	$(CCOMP) -c $(OPT) $(INC) moj_program.c
 
 clean:
-	rm -f *.o
+	rm -f *.o moj_program

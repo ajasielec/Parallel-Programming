@@ -8,7 +8,7 @@ LOADER = gcc
 # wersja do debugowania
 # OPT = -g -DDEBUG
 # wersja zoptymalizowana do mierzenia czasu
-OPT = -O3
+ OPT = -O3
 
 # pliki naglowkowe
 INC = -I../pomiar_czasu
@@ -41,10 +41,10 @@ multi_thread_clone.o: multi_thread_clone.c
 
 # na 4.0:
 zajecia2: zajecia2.o
-	$(LOADER) $(OPT) zajecia2.o -o zajecia2 $(LIB)
+	$(LOADER) $(OPT) zajecia2.o -o zajecia2 $(LIB) 
 
 zajecia2.o: zajecia2.c
-	$(CCOMP) -c $(OPT) zajecia2.c $(INC)
+	$(CCOMP) -c $(OPT) zajecia2.c $(INC) 
 
 all: fork clone multi_thread_clone zajecia2
 

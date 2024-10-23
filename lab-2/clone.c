@@ -18,10 +18,12 @@ int funkcja_watku( void* argument )
 
   zmienna_globalna++;
 
-  //  int wynik; 
-  //  wynik = execv("./program",NULL); 
-  //  if(wynik == -1) 
-  //    printf("Proces potomny nie wykonal programu\n"); 
+  char* args[] = {"./zajecia2", NULL}; // uruchomienie programu
+
+   int wynik; 
+   wynik = execv(args[0], args); 
+   if(wynik == -1) 
+     printf("Proces potomny nie wykonal programu\n"); 
 
   return 0;
 }
@@ -41,7 +43,7 @@ int main()
 
   inicjuj_czas();
 
-  for(i=0;i<10000;i++){
+  for(i=0;i<1000;i++){
 
     pid = clone( &funkcja_watku, (void *) stos+ROZMIAR_STOSU, 
 		 CLONE_FS | CLONE_FILES | CLONE_SIGHAND | CLONE_VM, 0 );

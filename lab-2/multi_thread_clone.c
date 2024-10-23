@@ -11,14 +11,14 @@ int zmienna_globalna = 0;
 #define ROZMIAR_STOSU 1024 * 64
 
 int funkcja_wątku(void* argument) {
-    int* lokalna_zmienna = (int*)argument;
+    int lokalna_zmienna = *((int*) argument);
     for(int i = 0; i < 100000; i++) {
         zmienna_globalna ++;
-        (*lokalna_zmienna) ++;
+        lokalna_zmienna ++;
     }
 
     printf ("Wątek zakończony: zmienna_globalna = %d, lokalna_zmienna = %d\n",
-            zmienna_globalna, *lokalna_zmienna);
+            zmienna_globalna, lokalna_zmienna);
     return 0;
 }
 

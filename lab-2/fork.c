@@ -24,7 +24,7 @@ int main(){
 
       // Tablica argumentów do execv
       char* args1[] = {"/bin/ls", ".", NULL}; // // uruchomienie komedy ls
-      char* args2[] = {"./zajecia2", NULL}; // uruchomienie programu
+      char* args2[] = {"./zajecia", NULL}; // uruchomienie programu
 
       wynik = execv(args2[0], args2); 
    

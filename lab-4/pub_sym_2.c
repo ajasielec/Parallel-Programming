@@ -1,3 +1,5 @@
+// Symulacja pubu - aktywne czekanie na zasob
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
@@ -42,6 +44,13 @@ int main(void) {
         pthread_join(tab_klient[i], NULL);
     }
 
+    // porownanie poczatkowej i koncowej liczby kufli
+    if (wolne_kufle != l_kf){
+        printf("\nBlad: Zmiana calkowitej liczby kufli");
+        printf("\nPoczatkowa liczba kufli: %d", l_kf);
+        printf("\nKoncowa liczba kufli: %d\n", wolne_kufle);
+    }
+
     printf("\nZamykamy pub!\n");
     free(tab_klient);
     free(tab_klient_id);
@@ -70,12 +79,9 @@ void * watek_klient(void * arg_wsk) {
             }
             pthread_mutex_unlock(&mutex);
             printf("\nKlient %d, nie ma wolnych kufli! Czekam %d sekund...\n", moj_id, wait_time);
-            sleep(wait_time); // Oczekiwanie na dostępny kufel
+            sleep(wait_time);           // Oczekiwanie na dostępny kufel
             wait_time = rand() % 3 + 1; // Losowanie nowego czasu oczekiwania
         } while (1);
-
-        printf("\nKlient %d, nalewam z kranu\n", moj_id);
-        usleep(30);
 
         printf("\nKlient %d, pije, pozostało kufli %d\n", moj_id, wolne_kufle);
         nanosleep((struct timespec[]){{0, 50000000L}}, NULL);

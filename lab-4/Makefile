@@ -40,4 +40,4 @@ pub_sym_2.o: pub_sym_2.c
 
 # Clean target to remove compiled files
 clean:
-	rm -f $(TARGETS)
+	rm -f $(TARGETS) *.o

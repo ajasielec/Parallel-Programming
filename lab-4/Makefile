@@ -17,7 +17,7 @@ INC = -I../pomiar_czasu
 LIB = -L../pomiar_czasu -lpomiar_czasu -lm
 
 # Targets
-TARGETS = pub_sym_0 pub_sym_1 pub_sym_2
+TARGETS = pub_sym_0 pub_sym_1 pub_sym_2 pub_sym_3
 
 # Default target
 all: $(TARGETS)
@@ -37,6 +37,11 @@ pub_sym_2: pub_sym_2.o
 	$(LOADER) $(OPT) pub_sym_2.o -o pub_sym_2 $(LIB)
 pub_sym_2.o: pub_sym_2.c 
 	$(CCOMP) -c $(OPT) $(INC) pub_sym_2.c
+
+pub_sym_3: pub_sym_3.o
+	$(LOADER) $(OPT) pub_sym_3.o -o pub_sym_3 $(LIB)
+pub_sym_3.o: pub_sym_3.c 
+	$(CCOMP) -c $(OPT) $(INC) pub_sym_3.c
 
 # Clean target to remove compiled files
 clean:

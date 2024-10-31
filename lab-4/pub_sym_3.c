@@ -1,5 +1,5 @@
-// Symulacja pubu - aktywne czekanie na zasob
-// do while, zanim dobieranie kufla sprawdzic czy mozna
+// wykorzystanie trylock podczas wybierania zasobu, 
+// zliczamy prace w trakcie oczekiwania na zasób
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -75,6 +75,7 @@ int main(void) {
 void * watek_klient(void * arg_wsk) {
     int moj_id = *((int *)arg_wsk);
     int i, j;
+    int wykonana_praca = 0;
 
     printf("\nKlient %d, wchodzę do pubu\n", moj_id);
 
@@ -85,40 +86,40 @@ void * watek_klient(void * arg_wsk) {
 
         // Aktywne czekanie na wolny kufel
         do {
-            pthread_mutex_lock(&mutex);
-            if (wolne_kufle > 0) {
-                // klient pobiera kufel
-                wolne_kufle--;
-                pthread_mutex_unlock(&mutex);   //odblokowanie dostepu do zmiennej
-                success = 1; // Kufel dostępny, wychodzimy z pętli
+            if (pthread_mutex_trylock(&mutex) == 0){
+                if (wolne_kufle > 0) {
+                    // klient pobiera kufel
+                    wolne_kufle--;
+                    pthread_mutex_unlock(&mutex);   //odblokowanie dostepu do zmiennej
+                    success = 1; // Kufel dostępny, wychodzimy z pętli
 
-                // klient nalewa z kranu
-                pthread_mutex_lock(&mutexKran);
-                j=0;
-                printf("\nKlient %d, nalewam z kranu %d\n", moj_id, j);
-                usleep(30);
-                pthread_mutex_unlock(&mutexKran);
+                    // klient nalewa z kranu
+                    pthread_mutex_lock(&mutexKran);
+                    j=0;
+                    printf("\nKlient %d, nalewam z kranu %d\n", moj_id, j);
+                    usleep(30);
+                    pthread_mutex_unlock(&mutexKran);
 
-                // klient pije
-                printf("\nKlient %d, pije, pozostało kufli %d\n", moj_id, wolne_kufle);
-                nanosleep((struct timespec[]){{0, 50000000L}}, NULL);
+                    // klient pije
+                    printf("\nKlient %d, pije, pozostało kufli %d\n", moj_id, wolne_kufle);
+                    nanosleep((struct timespec[]){{0, 50000000L}}, NULL);
 
-                // klient odklada kufel
-                printf("\nKlient %d, odkładam kufel\n", moj_id);
-                pthread_mutex_lock(&mutex);
-                wolne_kufle++;
-            } 
-            pthread_mutex_unlock(&mutex);
-            
-            if (!success) {
-                printf("\nKlient %d, nie ma wolnych kufli! Czekam %d sekund...\n", moj_id, wait_time);
-                sleep(wait_time);           // Oczekiwanie na dostępny kufel
-                wait_time = rand() % 3 + 1; // Losowanie nowego czasu oczekiwania
+                    // klient odklada kufel
+                    printf("\nKlient %d, odkładam kufel\n", moj_id);
+                    pthread_mutex_lock(&mutex);
+                    wolne_kufle++;
+                }
+                    pthread_mutex_unlock(&mutex);
             }
-
+            if (!success) {
+                printf("\nKlient %d, nie ma wolnych kufli!\n", moj_id);
+                // sleep(wait_time);           // Oczekiwanie na dostępny kufel
+                // wait_time = rand() % 3 + 1; // Losowanie nowego czasu oczekiwania
+                wykonana_praca ++;
+            }
             } while (!success);
     }
 
-    printf("\nKlient %d, wychodzę z pubu\n", moj_id);
+    printf("\nKlient %d, wychodzę z pubu, wykonana praca: %d\n", moj_id, wykonana_praca);
     return NULL;
 }

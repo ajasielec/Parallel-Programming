@@ -1,4 +1,7 @@
-// Symulacja pubu - zabezpieczenie dostepu do zasobu loch/unlock
+// Symulacja pubu - zabezpieczenie dostepu do zasobu lock/unlock
+// duzo kufli, 1 kran, 
+// zabezpieczamy odbieranie, kran i oddawanie
+// 2 mutexy, odbieranie i oddawanie, drugi na kran 
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -6,26 +9,30 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#define ILE_MUSZE_WYPIC 333
+#define ILE_MUSZE_WYPIC 3
 
 void *watek_klient(void *arg);
+
 pthread_mutex_t mutex;  // Mutex do synchronizacji dostępu do kufli
-pthread_cond_t cond;    // Zmienna warunkowa dla klientów
+pthread_mutex_t mutexKran;  // Mutex do synchronizacji dostępu do kranow
+
 int wolne_kufle;        // zmienna wspolna dla watkow
+
 
 int main(void) {
     pthread_t *tab_klient;
     int *tab_klient_id;
-    int l_kl, l_kf, i;
+    int l_kl, l_kf, l_kr, i;
 
     printf("\nLiczba klientow: "); scanf("%d", &l_kl);
     printf("\nLiczba kufli: "); scanf("%d", &l_kf);
 
     wolne_kufle = l_kf;
+    l_kr = 1;
 
     // Inicjalizacja mutexa i zmiennej warunkowej
     pthread_mutex_init(&mutex, NULL);
-    pthread_cond_init(&cond, NULL);
+    pthread_mutex_init(&mutexKran, NULL);
 
     tab_klient = (pthread_t *)malloc(l_kl * sizeof(pthread_t));
     tab_klient_id = (int *)malloc(l_kl * sizeof(int));
@@ -52,7 +59,7 @@ int main(void) {
 
     // Czyszczenie zasobów
     pthread_mutex_destroy(&mutex);
-    pthread_cond_destroy(&cond);
+    pthread_mutex_destroy(&mutexKran);
     free(tab_klient);
     free(tab_klient_id);
 
@@ -61,7 +68,7 @@ int main(void) {
 
 void *watek_klient(void *arg_wsk) {
     int moj_id = *((int *)arg_wsk);
-    int i;
+    int i, j;
 
     printf("\nKlient %d, wchodzę do pubu\n", moj_id);
 
@@ -71,23 +78,26 @@ void *watek_klient(void *arg_wsk) {
         pthread_mutex_lock(&mutex); // zablokowanie dostępu do kufli
         wolne_kufle --;             // klient bierze kufel
         pthread_mutex_unlock(&mutex);
+        
+        printf("\nKlient %d, wybieram kufel\n", moj_id); 
 
-        // sprawdzenie czy klient wzial kufel mimo ze nie ma juz wolnych kufli
-        // if (wolne_kufle < 0){
-        //     printf("\nBlad: Klient %d, pobral kufel mimo braku kufli!\n", moj_id);
-        //     printf("Liczba kufli: %d\n", wolne_kufle);
-        // }
+        // klient nalewa z kranu
+        pthread_mutex_lock(&mutexKran);
+        j=0;
+        printf("\nKlient %d, nalewam z kranu %d\n", moj_id, j);
+        usleep(30);
+        pthread_mutex_unlock(&mutexKran);
 
         // klient pije
-        usleep(1);
         printf("\nKlient %d, pije, pozostało kufli %d\n", moj_id, wolne_kufle);
-        // nanosleep((struct timespec[]){{0, 50000000L}}, NULL);
+        nanosleep((struct timespec[]){{0, 50000000L}}, NULL);
 
         // klient odklada kufel
         pthread_mutex_lock(&mutex); 
         wolne_kufle++;
-        printf("\nKlient %d, odkladam kufel\n", moj_id);
         pthread_mutex_unlock(&mutex); // odblokowanie dostępu do kufli
+        
+        printf("\nKlient %d, odkladam kufel\n", moj_id);
     }
 
     printf("\nKlient %d, wychodzę z pubu\n", moj_id);

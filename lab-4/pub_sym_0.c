@@ -1,4 +1,7 @@
 // Symulacja pubu - wersja bez zabezpieczenia dostepu do zmiennej wspolnej
+// zmienna globalna --, ++
+// 1 kufel, 1 kran, 1 krzeslo
+// jeden mutex przed petla i po petli
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -6,21 +9,26 @@
 #include <pthread.h>
 #include <unistd.h>
 
-#define ILE_MUSZE_WYPIC 333
+#define ILE_MUSZE_WYPIC 3
 
 void *watek_klient(void *arg);
 int wolne_kufle;    // zmienna globalna, wspolna dla wszystkich watkow
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
 
 int main( void ){
     pthread_t *tab_klient;
     int *tab_klient_id;
-    int l_kl, l_kf, i;
+    int l_kl, l_kf, l_kr, i;
 
     printf("\nLiczba klientow: "); scanf("%d", &l_kl);
     printf("\nLiczba kufli: "); scanf("%d", &l_kf);
 
     wolne_kufle = l_kf;     // poczatkowa liczba kufli
+    l_kr = 1;
+
+    // init mutex
+    pthread_mutex_init(&mutex, NULL);
 
     tab_klient = (pthread_t *) malloc(l_kl*sizeof(pthread_t));
     tab_klient_id = (int *) malloc(l_kl*sizeof(int));
@@ -52,32 +60,38 @@ int main( void ){
 }
 
 void * watek_klient (void * arg_wsk){
-  int moj_id = * ((int *)arg_wsk);
-  int i;
+    int moj_id = * ((int *)arg_wsk);
+    int i;
 
-  printf("\nKlient %d, wchodzę do pubu\n", moj_id); 
-    
-  for(i=0; i<ILE_MUSZE_WYPIC; i++){
-        // klient bierze kufel
-        wolne_kufle--;
-        // printf("\nKlient %d, pije, pozostało kufli %d\n", moj_id, wolne_kufle); 
+    printf("\nKlient %d, wchodzę do pubu\n", moj_id); 
 
-        // sprawdzenie czy klient wzial kufel mimo ze nie ma juz wolnych kufli
-        if (wolne_kufle < 0){
-            printf("\nBlad: Klient %d, pobral kufel mimo braku kufli!\n", moj_id);
-            printf("Liczba kufli: %d\n", wolne_kufle);
-        }
+    // mutex lock
+    pthread_mutex_lock(&mutex);
+    for(i=0; i<ILE_MUSZE_WYPIC; i++){
+            // klient bierze kufel
+            wolne_kufle--;
+            printf("\nKlient %d, pije, pozostało kufli %d\n", moj_id, wolne_kufle); 
 
-        // klient pije
-        usleep(1);
-        // nanosleep((struct timespec[]){{0, 50000000L}}, NULL);
-        // printf("\nKlient %d, odkladam kufel\n", moj_id);
+            // sprawdzenie czy klient wzial kufel mimo ze nie ma juz wolnych kufli
+            if (wolne_kufle < 0){
+                printf("\nBlad: Klient %d, pobral kufel mimo braku kufli!\n", moj_id);
+                printf("Liczba kufli: %d\n", wolne_kufle);
+            }
 
-        // klient odklada kufel
-        wolne_kufle++;
-  }
+            // klient pije
+            usleep(1);
+            // nanosleep((struct timespec[]){{0, 50000000L}}, NULL);
+            printf("\nKlient %d, odkladam kufel\n", moj_id);
 
-   printf("\nKlient %d, wychodzę z pubu\n", moj_id); 
-    
-  return(NULL);
+            // klient odklada kufel
+            wolne_kufle++;
+    }
+    // mutex unlock
+    pthread_mutex_unlock(&mutex);
+
+    printf("\nKlient %d, wychodzę z pubu\n", moj_id); 
+        
+    return(NULL);
 } 
+
+// klienci wchodza do baru i czekaja na wolne krzeslo

@@ -5,7 +5,7 @@
 
 #include"pomiar_czasu.h"
 
-#define ROZMIAR 1000000
+#define ROZMIAR 100000000
 #define LICZBA_W 2 // lepiej: stała - LICZBA_W_MAX i parametr p - liczba wątków 
 
 pthread_mutex_t muteks;       // mutex do synchronizacji

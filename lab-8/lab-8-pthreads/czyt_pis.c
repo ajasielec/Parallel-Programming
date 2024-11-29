@@ -8,6 +8,7 @@
 void *funkcja_czytelnika(void *);
 void *funkcja_pisarza(void *);
 
+
 int main() {
     int i;
     pthread_t pisarze[5], czytelnicy[10];

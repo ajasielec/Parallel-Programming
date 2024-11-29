@@ -9,7 +9,6 @@ static pthread_cond_t barrier_cond;     // zmienna warunku do sygnalizowania
 
 void bariera_init(int threads){
     thread_count = threads;
-    waiting_threads = 0;
     pthread_mutex_init(&barrier_mutex, NULL);
     pthread_cond_init(&barrier_cond, NULL);
 }
@@ -20,11 +19,11 @@ void bariera(void){
     waiting_threads++;
 
     if (waiting_threads < thread_count){
-        pthread_cond_wait(&barrier_cond, &barrier_mutex);   // oczekiwanie na pozostałe wątki
+        pthread_cond_wait(&barrier_cond, &barrier_mutex);   // uspienie watku i odblokowanie mutexa
     } else {
         // ostatni watek - resetuje licznik i budzi inne
         waiting_threads = 0;
-        pthread_cond_broadcast(&barrier_cond);
+        pthread_cond_broadcast(&barrier_cond);      // zaczna dzialac dopiero po sekcji krytycznej
     }
 
     pthread_mutex_unlock(&barrier_mutex);

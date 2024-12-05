@@ -38,10 +38,10 @@ int main ()
   double suma_parallel = 0.0;
 
   #pragma omp parallel for default(none) shared(a) reduction(+ : suma_parallel) ordered
-  // #pragma omp parallel for ordered schedule (static, 3) reduction (+ : suma_parallel)
-  // #pragma omp parallel for ordered schedule (static) reduction (+ : suma_parallel)
-  // #pragma omp parallel for ordered schedule (dynamic, 2) reduction (+ : suma_parallel)
-  // #pragma omp parallel for ordered schedule (dynamic) reduction (+ : suma_parallel)
+  // #pragma omp parallel for default(none) shared(a) schedule (static, 3) reduction (+ : suma_parallel) ordered
+  // #pragma omp parallel for default(none) shared(a) schedule (static) reduction (+ : suma_parallel) ordered
+  // #pragma omp parallel for default(none) shared(a) schedule (dynamic, 2) reduction (+ : suma_parallel) ordered
+  // #pragma omp parallel for default(none) shared(a) schedule (dynamic) reduction (+ : suma_parallel) ordered
 
   for(int i = 0; i < WYMIAR; i++) {
     int id_w = omp_get_thread_num();

@@ -3,7 +3,8 @@
 #include <math.h>
 #include <omp.h>
 
-#define WYMIAR 5
+#define WYMIAR 10
+
 
 int main ()
 {
@@ -32,7 +33,7 @@ int main ()
 
   // dekompozycja wierszowa
   double suma_parallel_wierszowa = 0.0;
-  #pragma omp parallel for default(none) shared(a) reduction(+:suma_parallel_wierszowa) ordered
+  #pragma omp parallel for default(none) shared(a) schedule(static,2) reduction(+:suma_parallel_wierszowa) ordered
   for (int i = 0; i < WYMIAR; i++) {
     for (int j = 0; j < WYMIAR; j++){
       suma_parallel_wierszowa += a[i][j];
@@ -47,7 +48,7 @@ int main ()
   
   // dekompozycja kolumnowa
   double suma_parallel_kolumnowa = 0.0;
-  #pragma omp parallel for default(none) shared(a) reduction(+:suma_parallel_kolumnowa) ordered
+  #pragma omp parallel for default(none) shared(a) schedule(dynamic,2) reduction(+:suma_parallel_kolumnowa) ordered
   for (int j = 0; j < WYMIAR; j++) {
     for (int i = 0; i < WYMIAR; i++){
       suma_parallel_kolumnowa += a[i][j];
@@ -57,9 +58,30 @@ int main ()
     }
   }
 
-  printf("Suma wyrazów tablicy równolegle (dekompozycja kolumnowa): %lf\n", suma_parallel_kolumnowa);
+  printf("Suma wyrazów tablicy równolegle (dekompozycja kolumnowa): %lf\n", suma_parallel_kolumnowa);   
 
 
+  // kolumnowa bez reduction - reczne sterowanie
+  double suma_parallel_reczne = 0.0;
+  #pragma omp parallel default(none) shared(a, suma_parallel_reczne)
+  {
+  double suma_temp = 0;
+  #pragma omp for
+  for (int j = 0; j < WYMIAR; j++) {
+    for (int i = 0; i < WYMIAR; i++){
+      suma_temp += a[i][j];
+    }
+  }
+  
+  #pragma omp critical (suma_parallel_reczne)
+  suma_parallel_reczne += suma_temp;
+
+  #pragma omp barrier
+  printf("Suma koncowa (bez reduction): %lf, moj udzial: %lf\n", suma_parallel_reczne, suma_temp);   
+  }
+
+  // dekompozycja 2D (obszary zagniezdzone)
+  
 
 
   // // podwójna pętla - docelowo równolegle

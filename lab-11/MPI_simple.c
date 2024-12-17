@@ -5,6 +5,8 @@
 
 #include "mpi.h"
 
+// 2 komunikaty: rank i hostname
+
 int main( int argc, char** argv ){ 
   
   int rank, ranksent, size, source, dest, tag, i; 
@@ -17,30 +19,38 @@ int main( int argc, char** argv ){
 
   const int stringSize = 256;
   char hostname[stringSize];
-  memset(hostname, 0, sizeof(hostname));
+  memset(hostname, 0, sizeof(hostname));    // ustawia wszedzie \0 zeby nie bylo smieci z pamieci
 
   gethostname(hostname, sizeof(hostname));  // pobieranie nazwy hosta
   
   // komunikacja procesow
   if(size>1)
   {
-    if( rank != 0 ){
+    if( rank != 0 )
+    {
       // wysylanie swojej nazwy do procesu 0
+      dest = 0;
+      tag = 0;
+      MPI_Send(&rank, 1, MPI_INT, dest, tag, MPI_COMM_WORLD);
       MPI_Send( hostname, stringSize, MPI_CHAR, 0, 0, MPI_COMM_WORLD );
       printf("Rank %d: Sent hostname: '%s' to rank 0.\n", rank, hostname);
-    } else {
-        // odbieranie wiadomości przez proces 0
-        for( i=1; i<size; i++ ) {
-          char nameSent[stringSize];
-          memset(nameSent, 0, sizeof(nameSent));
-          MPI_Recv(nameSent, stringSize, MPI_CHAR, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-          nameSent[stringSize - 1] = '\0';
-          printf("Dane od procesu o randze (status.MPI_SOURCE ->) %d: %d, %s (i=%d)\n", 
-          status.MPI_SOURCE, ranksent, nameSent, i );
+    } 
+    else
+    {
+      // odbieranie wiadomości przez proces 0
+      for( i=1; i<size; i++ ) {
+        char nameSent[stringSize];
+        memset(nameSent, 0, sizeof(nameSent));
+        MPI_Recv(&ranksent, 1, MPI_INT, i, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+        MPI_Recv(nameSent, stringSize, MPI_CHAR, i, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+        nameSent[stringSize - 1] = '\0';
+        printf("Dane od procesu o randze (status.MPI_SOURCE ->) %d: %d, %s (i=%d)\n", 
+        status.MPI_SOURCE, ranksent, nameSent, i );
       }
     }
   }
-  else{
+  else
+  {
 	  printf("Pojedynczy proces o randze: %d (brak komunikatów)\n", rank);
   }
 

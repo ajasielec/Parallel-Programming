@@ -41,13 +41,13 @@ int main (int argc, char **argv) {
 
   // redukcja wyników lokalnych do procesu 0
   MPI_Reduce(&local_sum, &global_sum, 1, MPI_DOUBLE, MPI_SUM, root, MPI_COMM_WORLD);
+  SCALAR pi_approx = 4.0 * global_sum;
+  printf("Reduce: Wynik w procesie %d: %20.15lf\n", rank, pi_approx);
 
-  // proces 0 wypisuje wynik
-  if (rank == 0) {
-    SCALAR pi_approx = 4.0 * global_sum;
-    printf("PI obliczone: \t\t\t%20.15lf\n", pi_approx);
-    printf("PI z biblioteki matematycznej: \t%20.15lf\n", M_PI);
-  }
+  // redukcja do wszystkich procesow
+  MPI_Allreduce(&local_sum, &global_sum, 1, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+  pi_approx = 4.0 * global_sum;
+  printf("All reduce: Wynik w procesie %d: %20.15lf\n", rank, pi_approx);
 
   // finalizacja MPI
   MPI_Finalize();
